@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Engineer Lab
 
-## Getting Started
+A self-hosted, personal AI engineering lab that helps you generate tailored project ideas, spec them, and drive your **opencode** agents to plan and build real projects.
 
-First, run the development server:
+This is a simplified, opinionated take on the Autonomous Project Portfolio OS: the dashboard is thin, opencode is the brain.
 
+## What it does
+
+- **Personal dashboard** — single-user Next.js app with a dark developer UI.
+- **Idea generation** — `POST /api/ideas` prompts opencode to return structured JSON ideas. No extra LLM keys needed.
+- **SQLite persistence** — profile, ideas, projects stored locally in `data/app.db`.
+- **opencode integration** — the app shells out to the opencode CLI (`opencode run`) for idea generation and future build steps.
+- **Portfolio tracking** — save ideas, create projects, track milestones, and build an authentic GitHub portfolio without fabricating activity.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS
+- Bun (package manager)
+- SQLite via `better-sqlite3`
+- opencode CLI for agent orchestration
+
+## Getting started
+
+Prerequisites:
+- Bun installed
+- `opencode` on PATH (already configured on this machine)
+
+Install and run:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd engineer-lab
+bun install
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app starts with a simple “Generate Ideas” button that calls opencode and persists results to SQLite.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```
+src/
+  app/
+    api/ideas/route.ts   # opencode idea generation endpoint
+    page.tsx             # dashboard UI
+  lib/
+    db.ts                # SQLite init + migration
+    opencode.ts          # spawn opencode run
+data/
+  app.db                 # local SQLite store (gitignored)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Workflow
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Open dashboard → **Generate Ideas** (opencode produces JSON)
+2. Pick an idea → create project/spec (coming next)
+3. Dashboard drives opencode step-by-step per milestone, streams logs, commits to Git
+4. Track progress, quality gate, portfolio export
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
+- Authenticity first: never fabricate achievements, users, or GitHub activity.
+- Security: opencode handles permissions; the dashboard never stores secrets.
+- Self-hosted: no Docker, no external services, just `bun run dev`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
