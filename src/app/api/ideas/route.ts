@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { runOpencode } from '@/lib/opencode';
+import { extractJson, toIdeasArray } from '@/lib/json';
 import { db } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
@@ -32,21 +33,11 @@ Important: be honest about what is a prototype vs a validated system. Never clai
     const text = await runOpencode({ prompt });
 
     let ideas: any[] = [];
-    const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    const jsonText = fence ? fence[1] : text;
     try {
-      const parsed = JSON.parse(jsonText);
-      if (Array.isArray(parsed)) ideas = parsed;
-      else if (Array.isArray(parsed.ideas)) ideas = parsed.ideas;
-      else ideas = [parsed];
-    } catch {
-      try {
-        const arrMatch = jsonText.match(/\[[\s\S]*\]/);
-        if (arrMatch) ideas = JSON.parse(arrMatch[0]);
-        else throw new Error('no array match');
-      } catch (e2: any) {
-        throw new Error(`Could not parse ideas from opencode output: ${e2.message}. Raw text preview: ${text.slice(0, 1500)}`);
-      }
+      const parsed = extractJson(text);
+      ideas = toIdeasArray(parsed);
+    } catch (e: any) {
+      throw new Error(`Could not parse ideas from opencode output: ${e.message}. Raw text preview: ${text.slice(0, 1500)}`);
     }
 
     const stmt = db.prepare(`

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { runOpencode } from '@/lib/opencode';
+import { extractJson } from '@/lib/json';
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,10 +42,7 @@ Provide a single JSON object (no extra text) with exactly these keys:
 Put the result in a single JSON code block.`;
 
     const text = await runOpencode({ prompt });
-    const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    const jsonText = fence ? fence[1] : text;
-    const match = jsonText.match(/\{[\s\S]*\}/);
-    const spec = match ? JSON.parse(match[0]) : JSON.parse(jsonText);
+    const spec = extractJson(text);
 
     const insert = db.prepare('INSERT INTO projects (ideaId, spec, status) VALUES (?, ?, ?)');
     const info = insert.run(ideaId, JSON.stringify(spec), 'spec_pending');
