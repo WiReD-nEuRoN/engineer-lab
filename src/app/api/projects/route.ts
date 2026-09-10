@@ -5,7 +5,7 @@ import { runOpencode } from '@/lib/opencode';
 export async function POST(req: NextRequest) {
   try {
     const { ideaId } = await req.json();
-    const ideaRow = db.prepare('SELECT * FROM ideas WHERE id = ?').get(ideaId);
+    const ideaRow = db.prepare('SELECT * FROM ideas WHERE id = ?').get(ideaId) as any;
     if (!ideaRow) return Response.json({ error: 'Idea not found' }, { status: 404 });
 
     const idea = {
@@ -19,21 +19,32 @@ export async function POST(req: NextRequest) {
       estimatedTime: ideaRow.estimatedTime,
     };
 
-    const prompt = `
-You are a senior software architect. Create a detailed project specification for the following idea.
+    const prompt = `Act as a senior software architect. Write a thorough project specification based on this idea:
 
-Idea:
 ${JSON.stringify(idea, null, 2)}
 
-Return ONLY a JSON object with keys:
-overview, problemStatement, goals, nonGoals, targetUsers, features (array), technologyStack, systemArchitecture, folderStructure, milestones (array of {title, description}), testingStrategy, documentationStrategy, futureImprovements
+Provide a single JSON object (no extra text) with exactly these keys:
+- overview: string
+- problemStatement: string
+- goals: array of strings
+- nonGoals: array of strings
+- targetUsers: string
+- features: array of strings
+- technologyStack: array of strings
+- systemArchitecture: string
+- folderStructure: string
+- milestones: array of { title: string, description: string }
+- testingStrategy: string
+- documentationStrategy: string
+- futureImprovements: array of strings
 
-No prose outside JSON.
-    `;
+Put the result in a single JSON code block.`;
 
-    const raw = await runOpencode({ prompt });
-    const match = raw.match(/\{[\s\S]*\}/);
-    const spec = match ? JSON.parse(match[0]) : JSON.parse(raw);
+    const text = await runOpencode({ prompt });
+    const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const jsonText = fence ? fence[1] : text;
+    const match = jsonText.match(/\{[\s\S]*\}/);
+    const spec = match ? JSON.parse(match[0]) : JSON.parse(jsonText);
 
     const insert = db.prepare('INSERT INTO projects (ideaId, spec, status) VALUES (?, ?, ?)');
     const info = insert.run(ideaId, JSON.stringify(spec), 'spec_pending');
