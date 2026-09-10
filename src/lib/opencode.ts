@@ -1,5 +1,7 @@
 import { spawn } from 'child_process';
 
+const OPENCODE_BIN = process.env.OPENCODE_BIN || 'C:\\Users\\aayus\\AppData\\Roaming\\npm\\node_modules\\opencode-ai\\bin\\opencode.exe';
+
 export type OpencodeRunOptions = {
   prompt: string;
   dir?: string;
@@ -15,7 +17,7 @@ export function runOpencode({ prompt, dir, model, agent }: OpencodeRunOptions): 
     if (dir) args.push('--dir', dir);
     args.push(prompt);
 
-    const proc = spawn('opencode', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    const proc = spawn(OPENCODE_BIN, args, { stdio: ['ignore', 'pipe', 'pipe'], shell: true });
 
     let stdout = '';
     let stderr = '';
