@@ -40,9 +40,13 @@ Important: be honest about what is a prototype vs a validated system. Never clai
       else if (Array.isArray(parsed.ideas)) ideas = parsed.ideas;
       else ideas = [parsed];
     } catch {
-      const arrMatch = jsonText.match(/\[[\s\S]*\]/);
-      if (arrMatch) ideas = JSON.parse(arrMatch[0]);
-      else throw new Error('Could not parse ideas from opencode output');
+      try {
+        const arrMatch = jsonText.match(/\[[\s\S]*\]/);
+        if (arrMatch) ideas = JSON.parse(arrMatch[0]);
+        else throw new Error('no array match');
+      } catch (e2: any) {
+        throw new Error(`Could not parse ideas from opencode output: ${e2.message}. Raw text preview: ${text.slice(0, 1500)}`);
+      }
     }
 
     const stmt = db.prepare(`
