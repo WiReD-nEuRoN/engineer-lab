@@ -1,0 +1,11 @@
+▲ Next.js 16.3.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.100:3000
+✓ Ready in 599ms
+✓ Running next.config.ts took 45ms
+
+ GET / 200 in 359ms (next.js: 210ms, application-code: 149ms)
+ GET /%5Broot-of-the-server%5D__04kpziu._.css.map 404 in 114ms (next.js: 49ms, application-code: 65ms)
+ GET /api/ideas/list 200 in 119ms (next.js: 86ms, application-code: 33ms)
+ GET /api/ideas/list 200 in 14ms (next.js: 4ms, application-code: 9ms)
+ POST /api/ideas 200 in 3.0min (next.js: 30ms, application-code: 3.0min)

@@ -12,11 +12,6 @@ db.pragma('journal_mode = WAL');
 
 export function migrate() {
   db.exec(`
-    CREATE TABLE IF NOT EXISTS profile (
-      id INTEGER PRIMARY KEY,
-      data TEXT NOT NULL
-    );
-
     CREATE TABLE IF NOT EXISTS ideas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
